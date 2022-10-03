@@ -19,6 +19,10 @@
 	<rect x="10" y="10" rx="15" ry="15" width=99% height=99% style="fill:#80200010;stroke:#70707000;stroke-width:0.5;opacity:1" />'
 
 </svg>
+<select id='select'>
+  <option value="sin">sin</option>
+  <option value="noise">noise</option>
+</select>
 </body>
 <script type="text/javascript">
 
@@ -26,18 +30,39 @@ let balls = []
 
 let svgy = document.getElementById('svgy')
 
+let select = document.getElementById('select')
+
 let t = 0 
 let id =0 
-function loop() 
+
+let step = 1000/60 ;
+function loop( ) 
 {
-	t += 1
+
+	let margins = {left:25 , bottom:15 , top:15}
+	let speedbreak = [{duration:3 ,	 pos:600 },
+					{duration:6 	, pos:450 },
+					{duration:15 	, pos:300 },
+					{duration:60 	, pos:150 },
+					{duration:180 	, pos:150 }] 
+	let yrange = {min:0 , max:120}
+
+
+	let yscale =  (svgy.clientHeight - margins.bottom)/(yrange.max - yrange.min) + yrange.min
+
+	t ++
 
 	if( t%30 == 0 )
 	{
-		console.log('pushing?')
-		let y = Math.random()*50 + 100 // + Math.sin(t/600)*300 + 300
+		// console.log('pushing?')
+		let yVal = Math.random()*5 +50 +Math.sin(t/600)*50 + 0
+		if(select.value == 'noise')
+			yVal = Math.random()*50 +50  //+Math.sin(t/600)*200 + 200
 		// console.log(y)
-		balls.push( {x:900 , y:y , id:id , dy:0 , mode:'normal' , progress:0 ,opacity:255})
+		// yVal = 100
+		let yClient = (yrange.max - yVal)*yscale
+
+		balls.push( {x:svgy.clientWidth , yClient:yClient , yVal:yVal , id:id , dy:0 , mode:'normal' , progress:0 ,opacity:255})
 		id ++ ;
 		// console.log(balls)
 	}
@@ -46,65 +71,93 @@ function loop()
 
 	inner += '<rect x="10" y="10" rx="15" ry="15" width=99% height=99% style="fill:#80200010;stroke:#70707000;stroke-width:0.5;opacity:1" />'
 
+
+	for (var i = 0; i <= 6; i++) 
+	{
+		inner += '<line x1="' + margins.left + '" y1="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 )  + '" x2="' + svgy.clientWidth + '" y2="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 )  + '" style="stroke:#aaa8;stroke-width:1" />'
+
+		inner += '<text x="' + (margins.left -20  ) + '" y="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 + 10)  + '"' + ' fill="#000000ff" >' + (yrange.max*i/6  +yrange.min)  + '</text>'
+
+	}
+	
+
+
 	if(balls.length>0)
 	{
-		if(balls[0].x<10 )
+		if(balls[0].x < margins.left )
 			balls.shift()
 	}
 	for (var i = 1; i < balls.length; i++) {
-		if(balls[i].x < 600)
+		if(balls[i].x < speedbreak[0].pos)
 			if(balls[i].id%2==0 && balls[i].mode != 'delete')
 			{
-				balls[i-1].dy += (balls[i].y + balls[i-1].y)/2 - balls[i-1].y
-				if(i>2)
-					balls[i-2].dy +=  ((balls[i].y + balls[i-1].y)/2 - balls[i-1].y)/2
-				// balls[i+1].dy -= (balls[i+1].y - balls[i].y)/2
+				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
+				if(i>2  && balls[i-2].mode == 'delete')
+					balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
 
-				balls[i].dy += ((balls[i+1].y) + (balls[i-1].y+balls[i-1].dy))/2 - balls[i].y
+				balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
 				balls[i].mode = 'delete'
 				// balls.splice(i, 1);
 
 			}
-		if(balls[i].x < 300)
+		if(balls[i].x < speedbreak[1].pos)
 			if(((balls[i].id-1)/2)%2==0 && balls[i].mode != 'delete')
 			{
-				balls[i-1].dy += (balls[i].y + balls[i-1].y)/2 - balls[i-1].y
-				if(i>2)
-					balls[i-2].dy +=  ((balls[i].y + balls[i-1].y)/2 - balls[i-1].y)/2
-				// balls[i+1].dy -= (balls[i+1].y - balls[i].y)/2
+				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
+				if(i>2&& balls[i-2].mode == 'delete')
+					balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
+				balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
 
-				balls[i].dy += ((balls[i+1].y) + (balls[i-1].y+balls[i-1].dy))/2 - balls[i].y
+				balls[i].mode = 'delete'
+			}
 
-				// balls[i-1].dy += (balls[i].y - balls[i-1].y)/2
-				// balls[i+1].dy -= (balls[i+1].y - balls[i].y)/2
+		if(balls[i].x < speedbreak[2].pos)
+			if(((balls[i].id+1)/4)%2==0 && balls[i].mode != 'delete')
+			{
+				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
+				if(i>2 && balls[i-2].mode == 'delete')
+					balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
+
+				balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
+
 				balls[i].mode = 'delete'
 				// balls.splice(i, 1);
 			}
-
-		if(balls[i].x < 150)
-			if(((balls[i].id+1)/4)%2==0 && balls[i].mode != 'delete')
+			// 
+		if(balls[i].x < speedbreak[3].pos)
+			if(((balls[i].id-3)/8)%2==0 && balls[i].mode != 'delete')
 			{
-				balls[i-1].dy += (balls[i].y + balls[i-1].y)/2 - balls[i-1].y
-				if(i>2)
-					balls[i-2].dy +=  ((balls[i].y + balls[i-1].y)/2 - balls[i-1].y)/2
-				// balls[i+1].dy -= (balls[i+1].y - balls[i].y)/2
+				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
+				if(i> 2 && balls[i-2].mode == 'delete')
+					balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
+				// balls[i+1].dy -= (balls[i+1].yClient - balls[i].yClient)/2
 
-				balls[i].dy += ((balls[i+1].y) + (balls[i-1].y+balls[i-1].dy))/2 - balls[i].y
+				balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
 
-				// balls[i-1].dy += (balls[i].y - balls[i-1].y)/2
-				// balls[i+1].dy -= (balls[i+1].y - balls[i].y)/2
 				balls[i].mode = 'delete'
-				// balls.splice(i, 1);
 			}
 
 	}
 
-	inner += '<line x1="600" y1="0" x2="600" y2="1000" style="stroke:#aaa8;stroke-width:1" />'
-	inner += '<line x1="300" y1="0" x2="300" y2="1000" style="stroke:#aaa8;stroke-width:1" />'
-	inner += '<line x1="150" y1="0" x2="150" y2="1000" style="stroke:#aaa8;stroke-width:1" />'
+	inner += '<line x1="' + margins.left + '" y1="0" x2="' + margins.left + '" y2="' + 
+				svgy.clientHeight + '" style="stroke:#000f;stroke-width:1" />'
+
+	inner += '<line x1="' + speedbreak[0].pos+ '" y1="0" x2="' + speedbreak[0].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+	inner += '<line x1="' + speedbreak[1].pos+ '" y1="0" x2="' + speedbreak[1].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+	inner += '<line x1="' + speedbreak[2].pos+ '" y1="0" x2="' + speedbreak[2].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+	inner += '<line x1="' + speedbreak[3].pos+ '" y1="0" x2="' + speedbreak[3].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+
+	// console.log( (svgy.clientHeight))
+	inner += '<line x1="0" y1="' + (svgy.clientHeight-15) + '" x2="' + (svgy.clientWidth) + '" y2="' + (svgy.clientHeight-15) + '" style="stroke:#000f;stroke-width:1" />'
+	inner += '<text x="' + (speedbreak[0].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[0].duration +'</text>'
+	inner += '<text x="' + (speedbreak[1].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[1].duration +'</text>'
+	inner += '<text x="' + (speedbreak[2].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[2].duration +'</text>'
+	inner += '<text x="' + (speedbreak[3].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[3].duration +'</text>'
+	inner += '<text x="' + (margins.bottom + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[4].duration +'</text>'
+
 
 	for (var i = 0; i < balls.length; i++) {
-		balls[i].x -= (balls[i].x*balls[i].x*balls[i].x)/100000000  +0.1
+		balls[i].x -= (balls[i].x*balls[i].x*balls[i].x)/100000000  +0.03
 		balls[i].opacity = 255
 		if(balls[i].mode == 'delete')
 		{
@@ -121,31 +174,32 @@ function loop()
 
 		if(balls[i].dy > 0.4)
 		{
-			balls[i].y += 0.4	
+			balls[i].yClient += 0.4	
 			balls[i].dy-= 0.4
 		}
 		if(balls[i].dy < -0.4)
 		{
-			balls[i].y -= 0.4		
+			balls[i].yClient -= 0.4		
 			balls[i].dy+= 0.4
 		}
 		if(balls[i].dy != 0 && balls[i].dy  <0.4 && balls[i].dy > -0.4 )
 		{
-			balls[i].y += balls[i].dy		
+			balls[i].yClient += balls[i].dy		
 			balls[i].dy= 0
 		}
+		balls[i].yVal = yrange.max - balls[i].yClient/yscale 
 
 	}
 
 	for (var i = 1; i < balls.length; i++) {
-		inner += '<line x1="' + (balls[i-1].x -2.5) + '" y1="' + (balls[i-1].y -2.5) + '" x2="' + (balls[i].x -2.5) + '" y2="' + (balls[i].y  -2.5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />'
+		inner += '<line x1="' + (balls[i-1].x -2.5) + '" y1="' + (balls[i-1].yClient -2.5) + '" x2="' + (balls[i].x -2.5) + '" y2="' + (balls[i].yClient  -2.5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />'
 	}
 
 	for (var i = 0; i < balls.length; i++) {
-		inner += '<circle cx="' + balls[i].x + '" cy="' + balls[i].y + '" r="' + 5 + '" stroke="#eeeeeeff" stroke-width="2" fill="#440088' + dectohex(balls[i].opacity) + '" />'
-		inner += '<text x="' + balls[i].x + '" y="' + balls[i].y + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id + '</text>'
-		// inner += '<text x="' + balls[i].x + '" y="' + balls[i].y + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id+ '( ' + balls[i].dy +  ' )' + '</text>'
-		// console.log('<text x="' + balls[i].x + '" y="' + balls[i].y + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id+ '</text>');
+		inner += '<circle cx="' + balls[i].x + '" cy="' + balls[i].yClient + '" r="' + 5 + '" stroke="#eeeeeeff" stroke-width="2" fill="#440088' + dectohex(balls[i].opacity) + '" />'
+		inner += '<text x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + Math.round(balls[i].yVal*10)/10.0 + '</text>'
+		// inner += '<text x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id+ '( ' + balls[i].dy +  ' )' + '</text>'
+		// console.log('<text x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id+ '</text>');
 		//'( ' + balls[i].dy + ' )' +
 	}
 	// console.log(balls[0].x)
@@ -162,8 +216,7 @@ function dectohex(argument) {
 	return result;
 }
 
-
-setInterval(loop, 1000/60);
+setInterval(loop,step);
 	
 </script>
 </html>
