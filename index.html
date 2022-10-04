@@ -17,7 +17,8 @@
 <body   >
 <svg id='svgy' width='100%' height='100%'>
 	<rect x="10" y="10" rx="15" ry="15" width=99% height=99% style="fill:#80200010;stroke:#70707000;stroke-width:0.5;opacity:1" />'
-
+  <g id='ngroupy'> </g>
+  <g id='groupy'> </g>
 </svg>
 <select id='select'>
   <option value="sin">sin</option>
@@ -29,7 +30,8 @@
 let balls = []
 
 let svgy = document.getElementById('svgy')
-
+let groupy = document.getElementById('groupy')
+let ngroupy = document.getElementById('ngroupy')
 let select = document.getElementById('select')
 
 let t = 0 
@@ -79,13 +81,34 @@ function loop( )
 
 	inner += '<rect x="10" y="10" rx="15" ry="15" width=99% height=99% style="fill:#80200010;stroke:#70707000;stroke-width:0.5;opacity:1" />'
 
-
+	// if(t<10)
 	for (var i = 0; i <= 6; i++) 
 	{
-		inner += '<line x1="' + margins.left + '" y1="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 )  + '" x2="' + svgy.clientWidth + '" y2="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 )  + '" style="stroke:#aaa8;stroke-width:1" />'
-
-		inner += '<text x="' + (margins.left -20  ) + '" y="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 + 10)  + '"' + ' fill="#000000ff" >' + (yrange.max*i/6  +yrange.min)  + '</text>'
-
+		let lineelement = document.getElementById('yline' + i );
+   	let textelement = document.getElementById('ytext' + i );
+   
+		if(lineelement == null)
+		{
+			ngroupy.innerHTML += '<line id="' + ('yline' + i) + '" x1="' + margins.left + '" y1="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 )  + '" x2="' + svgy.clientWidth + '" y2="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 )  + '" style="stroke:#aaa8;stroke-width:1" />'
+		}else
+		{
+			// console.log('found' + i)
+			// console.log(lineelement)
+			lineelement.setAttribute('x1', margins.left);
+			lineelement.setAttribute('y1', ( (svgy.clientHeight - margins.bottom)*(6-i)/6 ));
+			lineelement.setAttribute('x2', svgy.clientWidth);
+			lineelement.setAttribute('y2',  ( (svgy.clientHeight - margins.bottom)*(6-i)/6 ));
+		}
+		if(textelement == null)
+		{
+			ngroupy.innerHTML += '<text id="' + 'ytext' + i + '" x="' + (margins.left -20  ) + '" y="' + ( (svgy.clientHeight - margins.bottom)*(6-i)/6 + 10)  + '"' + ' fill="#000000ff" >' + (yrange.max*i/6  +yrange.min)  + '</text>'
+		}else
+		{
+			// console.log('found' + i)
+			// console.log(textelement)
+			textelement.setAttribute('x',  (margins.left -20  ));
+			textelement.setAttribute('y', ( (svgy.clientHeight - margins.bottom)*(6-i)/6 + 10))
+		}
 	}
 	
 	if(balls.length>0)
@@ -144,6 +167,7 @@ function loop( )
 			}
 
 	}
+	// 	
 
 	inner += '<line x1="' + margins.left + '" y1="0" x2="' + margins.left + '" y2="' + 
 				svgy.clientHeight + '" style="stroke:#000f;stroke-width:1" />'
@@ -151,8 +175,33 @@ function loop( )
 	inner += '<line x1="0" y1="' + (svgy.clientHeight-margins.bottom) + '" x2="' + (svgy.clientWidth) + '" y2="' + (svgy.clientHeight-margins.bottom) + '" style="stroke:#000f;stroke-width:1" />'
 
 	for (var i = 0; i < 5; i++) {
-		inner += '<line x1="' + (speedbreak[i].clientpos)+ '" y1="0" x2="' +  (speedbreak[i].clientpos) + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
-		inner += '<text x="' + (speedbreak[i].clientpos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[i].duration +'</text>'
+
+		let lineelement = document.getElementById('xline' + i );
+
+		if(lineelement == null)
+		{
+			ngroupy.innerHTML += '<line id="' + ('xline' + i ) + '" x1="' + (speedbreak[i].clientpos)+ '" y1="0" x2="' +  (speedbreak[i].clientpos) + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+		}else
+		{
+			lineelement.setAttribute('x1',  (speedbreak[i].clientpos) );
+			lineelement.setAttribute('y1',  0 );
+			lineelement.setAttribute('x2',  (speedbreak[i].clientpos));
+			lineelement.setAttribute('y2',  svgy.clientHeight);
+		}
+
+		let textelement = document.getElementById('xtext' + i );
+
+		if(textelement == null)
+		{
+			ngroupy.innerHTML += '<text id="' + ('xtext' + i ) + '" x="' + (speedbreak[i].clientpos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[i].duration +'</text>'
+		}else
+		{
+			textelement.setAttribute('x', (speedbreak[i].clientpos + 10)) ;
+			textelement.setAttribute('y', (svgy.clientHeight  -15 )) ;
+
+		}
+
+
 	}
 
 
@@ -168,6 +217,11 @@ function loop( )
 
 			}else
 			{
+				let ballelement = document.getElementById('ballline' + balls[i].id );
+				let ballelementcircle = document.getElementById('ballcircle' + balls[i].id );
+				ballelement.remove();
+				
+				ballelementcircle.remove()
 				balls.splice(i, 1)
 			}
 		}
@@ -191,21 +245,60 @@ function loop( )
 
 	}
 
+   	// let textelement = document.getElementById('ytext' + i );
+
+
 	for (var i = 1; i < balls.length; i++) {
-		inner += '<line x1="' + (balls[i-1].x -2.5) + '" y1="' + (balls[i-1].yClient -2.5) + '" x2="' + (balls[i].x -2.5) + '" y2="' + (balls[i].yClient  -2.5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />'
+
+  	let ballelement = document.getElementById('ballline' + balls[i-1].id );
+  	if(ballelement == null)
+  	{
+		ngroupy.innerHTML += '<line id="' + ('ballline' + balls[i-1].id ) + '" x1="' + (balls[i-1].x -2.5) + '" y1="' + (balls[i-1].yClient -2.5) + '" x2="' + (balls[i].x -2.5) + '" y2="' + (balls[i].yClient  -2.5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />'
+
+		}else
+		{
+				ballelement.setAttribute('x1', (balls[i-1].x -2.5) ) ;
+				ballelement.setAttribute('y1', (balls[i-1].yClient -2.5) ) ;
+				ballelement.setAttribute('x2', (balls[i].x -2.5) ) ;
+				ballelement.setAttribute('y2', (balls[i].yClient  -2.5) ) ;
+		}
+
 	}
 
 	for (var i = 0; i < balls.length; i++) {
-		inner += '<circle cx="' + balls[i].x + '" cy="' + balls[i].yClient + '" r="' + 5 + '" stroke="#eeeeeeff" stroke-width="2" fill="#440088' + dectohex(balls[i].opacity) + '" />'
-		inner += '<text x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + Math.round(balls[i].yVal*10)/10.0 + '</text>'
+
+		let ballelementtext = document.getElementById('balltext' + balls[i].id );
+		if(ballelementtext== null)
+		{
+			ngroupy.innerHTML += '<text id="' + ('balltext' + balls[i].id)  +'" x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + Math.round(balls[i].yVal*10)/10.0 + '</text>'
+
+		}else
+		{
+				ballelementtext.setAttribute('x', balls[i].x ) ;
+				ballelementtext.setAttribute('y', balls[i].yClient ) ;
+				ballelementtext.setAttribute('fill', '#000000' + dectohex(balls[i].opacity) ) ;
+				ballelementtext.innerHTML = Math.round(balls[i].yVal*10)/10.0
+		}
+		let ballelementcircle = document.getElementById('ballcircle' + balls[i].id );
+
+		if(ballelementcircle == null)
+		{
+
+			ngroupy.innerHTML += '<circle id="' + ('ballcircle' + balls[i].id) + '" cx="' + balls[i].x + '" cy="' + balls[i].yClient + '" r="' + 5 + '" stroke="#eeeeeeff" stroke-width="2" fill="#440088' + dectohex(balls[i].opacity) + '" />'
+		}else
+		{
+				console.log('foun')
+				ballelementcircle.setAttribute('cx', balls[i].x ) ;
+				ballelementcircle.setAttribute('cy', balls[i].yClient) ;
+				// ballelementcircle.setAttribute('fill', '#440088' + dectohex(balls[i].opacity)  ) ;
+		}
+
 		// inner += '<text x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id+ '( ' + balls[i].dy +  ' )' + '</text>'
 		// console.log('<text x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + balls[i].id+ '</text>');
 		//'( ' + balls[i].dy + ' )' +
 	}
-	// console.log(balls[0].x)
 
-
-	svgy.innerHTML = inner;
+	// groupy.innerHTML = inner;
 }
 
 function dectohex(argument) {
