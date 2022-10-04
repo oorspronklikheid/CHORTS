@@ -35,20 +35,28 @@ let select = document.getElementById('select')
 let t = 0 
 let id =0 
 
-let step = 1000/60 ;
+let step = 1000/30 ;
+
 function loop( ) 
 {
 
 	let margins = {left:25 , bottom:15 , top:15}
-	let speedbreak = [{duration:3 ,	 pos:600 },
-					{duration:6 	, pos:450 },
-					{duration:15 	, pos:300 },
-					{duration:60 	, pos:150 },
-					{duration:180 	, pos:150 }] 
+	let speedbreak = [{duration:3 ,	 pos:70 },
+					{duration:6 	, pos:50 },
+					{duration:15 	, pos:33 },
+					{duration:60 	, pos:16 },
+					{duration:180 	, pos:0 }] 
 	let yrange = {min:0 , max:120}
+	// console.log(svgy.clientWidth)
 
 
+	let xscale =  (svgy.clientWidth - margins.left)/100
 	let yscale =  (svgy.clientHeight - margins.bottom)/(yrange.max - yrange.min) + yrange.min
+
+	for (var i = 0; i < 5 ; i++) {
+		speedbreak[i].clientpos = speedbreak[i].pos * xscale +margins.left
+		// console.log(speedbreak[i])
+	}
 
 	t ++
 
@@ -80,15 +88,13 @@ function loop( )
 
 	}
 	
-
-
 	if(balls.length>0)
 	{
 		if(balls[0].x < margins.left )
 			balls.shift()
 	}
 	for (var i = 1; i < balls.length; i++) {
-		if(balls[i].x < speedbreak[0].pos)
+		if(balls[i].x < speedbreak[0].clientpos)
 			if(balls[i].id%2==0 && balls[i].mode != 'delete')
 			{
 				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
@@ -100,7 +106,7 @@ function loop( )
 				// balls.splice(i, 1);
 
 			}
-		if(balls[i].x < speedbreak[1].pos)
+		if(balls[i].x < speedbreak[1].clientpos)
 			if(((balls[i].id-1)/2)%2==0 && balls[i].mode != 'delete')
 			{
 				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
@@ -111,7 +117,7 @@ function loop( )
 				balls[i].mode = 'delete'
 			}
 
-		if(balls[i].x < speedbreak[2].pos)
+		if(balls[i].x < speedbreak[2].clientpos)
 			if(((balls[i].id+1)/4)%2==0 && balls[i].mode != 'delete')
 			{
 				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
@@ -124,7 +130,7 @@ function loop( )
 				// balls.splice(i, 1);
 			}
 			// 
-		if(balls[i].x < speedbreak[3].pos)
+		if(balls[i].x < speedbreak[3].clientpos)
 			if(((balls[i].id-3)/8)%2==0 && balls[i].mode != 'delete')
 			{
 				balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
@@ -142,22 +148,16 @@ function loop( )
 	inner += '<line x1="' + margins.left + '" y1="0" x2="' + margins.left + '" y2="' + 
 				svgy.clientHeight + '" style="stroke:#000f;stroke-width:1" />'
 
-	inner += '<line x1="' + speedbreak[0].pos+ '" y1="0" x2="' + speedbreak[0].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
-	inner += '<line x1="' + speedbreak[1].pos+ '" y1="0" x2="' + speedbreak[1].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
-	inner += '<line x1="' + speedbreak[2].pos+ '" y1="0" x2="' + speedbreak[2].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
-	inner += '<line x1="' + speedbreak[3].pos+ '" y1="0" x2="' + speedbreak[3].pos + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+	inner += '<line x1="0" y1="' + (svgy.clientHeight-margins.bottom) + '" x2="' + (svgy.clientWidth) + '" y2="' + (svgy.clientHeight-margins.bottom) + '" style="stroke:#000f;stroke-width:1" />'
 
-	// console.log( (svgy.clientHeight))
-	inner += '<line x1="0" y1="' + (svgy.clientHeight-15) + '" x2="' + (svgy.clientWidth) + '" y2="' + (svgy.clientHeight-15) + '" style="stroke:#000f;stroke-width:1" />'
-	inner += '<text x="' + (speedbreak[0].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[0].duration +'</text>'
-	inner += '<text x="' + (speedbreak[1].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[1].duration +'</text>'
-	inner += '<text x="' + (speedbreak[2].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[2].duration +'</text>'
-	inner += '<text x="' + (speedbreak[3].pos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[3].duration +'</text>'
-	inner += '<text x="' + (margins.bottom + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[4].duration +'</text>'
+	for (var i = 0; i < 5; i++) {
+		inner += '<line x1="' + (speedbreak[i].clientpos)+ '" y1="0" x2="' +  (speedbreak[i].clientpos) + '" y2="' + svgy.clientHeight + '" style="stroke:#aaa8;stroke-width:1" />'
+		inner += '<text x="' + (speedbreak[i].clientpos + 10) + '" y="' + (svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + speedbreak[i].duration +'</text>'
+	}
 
 
 	for (var i = 0; i < balls.length; i++) {
-		balls[i].x -= (balls[i].x*balls[i].x*balls[i].x)/100000000  +0.03
+		balls[i].x -= (balls[i].x*balls[i].x*balls[i].x)/300000000  +0.03
 		balls[i].opacity = 255
 		if(balls[i].mode == 'delete')
 		{
@@ -217,6 +217,6 @@ function dectohex(argument) {
 }
 
 setInterval(loop,step);
-	
+
 </script>
 </html>
