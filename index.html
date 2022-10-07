@@ -30,10 +30,13 @@
 let balls = []
 let funballs = []
 
-let svgy = document.getElementById('svgy')
+let svgy1 = document.getElementById('svgy')
 let groupy = document.getElementById('groupy')
 let ngroupy = document.getElementById('ngroupy')
 let select = document.getElementById('select')
+
+let buffer = [[]]
+
 
 let t = 0 
 let id =0 
@@ -72,7 +75,7 @@ addSpeedbreak({duration:35 	, pos:55 })
 addSpeedbreak({duration:155 	, pos:25 })
 // addSpeedbreak( {duration:600 	, pos:10 })
 addSpeedbreak({duration:1200 	, pos:0 })
-function loop( ) 
+function loop(svgy ) 
 {
 
 	// console.log(svgy.clientWidth)
@@ -88,14 +91,11 @@ function loop( )
 
 	t ++
 
-	if( t%60 == 0 )
+	if( buffer[0].length > 0  )
 	{
-		// console.log('pushing?')
-		let yVal = Math.random()*5 +50 +Math.sin(t/400)*50 + 0
-		if(select.value == 'noise')
-			yVal = Math.random()*50 +50  //+Math.sin(t/600)*200 + 200
 		// console.log(y)
 		// yVal = 100
+		let yVal = buffer[0].shift()
 		let yClient = (yrange.max - yVal)*yscale
 
 		balls.push( {x:(svgy.clientWidth-1)  , yClient:yClient , yVal:yVal , id:id , dy:0 , mode:'normal' , progress:0 ,opacity:255})
@@ -289,11 +289,11 @@ function loop( )
 
 		let progstep = 1
 		if(balls[i].dy > 25 ||balls[i].dy < -25 )
-			progstep = 2 
-		if(balls[i].dy > 50 ||balls[i].dy < -50 )
 			progstep = 3 
+		if(balls[i].dy > 50 ||balls[i].dy < -50 )
+			progstep = 5 
 		if(balls[i].dy > 75 ||balls[i].dy < -75 )
-			progstep = 4 
+			progstep = 7 
 		if(balls[i].dy > progstep)
 		{
 			balls[i].yClient += progstep	
@@ -359,7 +359,16 @@ function dectohex(argument) {
 	return result;
 }
 
-setInterval(loop,step);
+setInterval( function(){loop(svgy1)} ,step);
+
+function addData() {
+		console.log('pushing?')
+		let yVal = Math.random()*5 +50 +Math.sin(t/400)*50 + 0
+		if(select.value == 'noise')
+			yVal = Math.random()*50 +50 
+		buffer[0].push(yVal)
+}
+setInterval(addData , 1200)
 
 </script>
 </html>
