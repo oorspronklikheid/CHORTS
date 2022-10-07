@@ -38,20 +38,43 @@ let select = document.getElementById('select')
 let t = 0 
 let id =0 
 
-let step = 1000/30 ;
+let step = 0 ;
 
+	let margins = {}
+	let speedbreak = [] 
+	let yrange = {min:0 , max:120}
+
+
+function setMargins(left , bottom , top , right) {
+	margins['left'] = left 
+	margins['bottom'] = bottom 
+	margins['top'] = top 
+	margins['right'] = right 
+}
+
+
+function setStep(newStep)
+{
+	step = newStep
+}
+
+setStep(1000/30)
+function addSpeedbreak(newspeedbreak)
+{
+	speedbreak.push(newspeedbreak)
+}
+
+setMargins(25,15,15,0)
+addSpeedbreak({duration:5 ,	 pos:85 })
+// addSpeedbreak( {duration:15 	, pos:70 })
+addSpeedbreak({duration:35 	, pos:55 })
+// addSpeedbreak( {duration:75 	, pos:40 })
+addSpeedbreak({duration:155 	, pos:25 })
+// addSpeedbreak( {duration:600 	, pos:10 })
+addSpeedbreak({duration:1200 	, pos:0 })
 function loop( ) 
 {
 
-	let margins = {left:25 , bottom:15 , top:15}
-	let speedbreak = [{duration:5 ,	 pos:85 },
-					{duration:15 	, pos:70 },
-					{duration:35 	, pos:55 },
-					{duration:75 	, pos:40 },
-					{duration:155 	, pos:25 },
-					{duration:315 	, pos:10 },
-					{duration:635 	, pos:0 }] 
-	let yrange = {min:0 , max:120}
 	// console.log(svgy.clientWidth)
 
 
@@ -68,7 +91,7 @@ function loop( )
 	if( t%60 == 0 )
 	{
 		// console.log('pushing?')
-		let yVal = Math.random()*5 +50 +Math.sin(t/600)*50 + 0
+		let yVal = Math.random()*5 +50 +Math.sin(t/400)*50 + 0
 		if(select.value == 'noise')
 			yVal = Math.random()*50 +50  //+Math.sin(t/600)*200 + 200
 		// console.log(y)
@@ -80,12 +103,22 @@ function loop( )
 		let i = balls.length - 1 
 	
 		if(i>0)
-		ngroupy.innerHTML += '<line id="' + ('ballline' + balls[i-1].id ) + '" x1="' + (balls[i-1].x +5) + '" y1="' + (balls[i-1].yClient +5) + '" x2="' + (balls[i].x +5) + '" y2="' + (balls[i].yClient  +5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />'
+		{
+
+			ngroupy.innerHTML += '<line id="' + ('ballline' + balls[i-1].id ) + '" x1="' + (balls[i-1].x +5) + '" y1="' + (balls[i-1].yClient +5) + '" x2="' + (balls[i].x +5) + '" y2="' + (balls[i].yClient  +5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />'
+			// let ballelement = document.getElementById('ballline' + balls[i-1].id );
+			balls[i-1]['elements']['line'] = document.getElementById('ballline' + balls[i-1].id );
+		}
 
 		ngroupy.innerHTML += '<text id="' + ('balltext' + balls[i].id)  +'" x="' + balls[i].x + '" y="' + balls[i].yClient + '"' + ' fill="#000000' + dectohex(balls[i].opacity) + '" >' + Math.round(balls[i].yVal*10)/10.0 + '</text>'
 
 		ngroupy.innerHTML += '<circle id="' + ('ballcircle' + balls[i].id) + '" cx="' + balls[i].x + '" cy="' + balls[i].yClient + '" r="' + 5 + '" stroke="#eeeeeeff" stroke-width="2" fill="#440088' + dectohex(balls[i].opacity) + '" />'
 
+			let ballelementcircle = document.getElementById('ballcircle' + balls[i].id );
+			let ballelementtext = document.getElementById('balltext' + balls[i].id );
+			balls[i]['elements'] = {}
+			balls[i]['elements']['circle'] = ballelementcircle
+			balls[i]['elements']['text'] = ballelementtext
 
 		id ++ ;
 		// console.log(balls)
@@ -130,6 +163,12 @@ function loop( )
 			let ballelement = document.getElementById('ballline' + balls[0].id );
 			let ballelementcircle = document.getElementById('ballcircle' + balls[0].id );
 			let ballelementtext = document.getElementById('balltext' + balls[0].id );
+			balls[0]['elements']['line'].remove()
+			balls[0]['elements']['circle'].remove()
+			balls[0]['elements']['text'].remove()
+			// balls[i-1]['elements']['line'] = ballelement
+			// balls[i]['elements']['circle'] = ballelementcircle
+			// balls[i]['elements']['text'] = ballelementtext
 			ballelement.remove();
 			ballelementcircle.remove()
 			ballelementtext.remove()
@@ -142,10 +181,6 @@ function loop( )
 		for (var j = 0; j < speedbreak.length; j++) 
 		{
 			let offset = breaknum -1
-// 1 2
-// 3 4
-// 7 8
-// 15 16
 
 		if(balls[i].x < speedbreak[j].clientpos)
 		{
@@ -164,43 +199,7 @@ function loop( )
 			breaknum *= 2
 
 		}
-		// if(balls[i].x < speedbreak[1].clientpos)
-		// 	if(((balls[i].id-1)/2)%2==0 && balls[i].mode != 'delete')
-		// 	{
-		// 		balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
-		// 		if(i>2&& balls[i-2].mode == 'delete')
-		// 			balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
-		// 		balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
-
-		// 		balls[i].mode = 'delete'
-		// 	}
-
-		// if(balls[i].x < speedbreak[2].clientpos)
-		// 	if(((balls[i].id+1)/4)%2==0 && balls[i].mode != 'delete')
-		// 	{
-		// 		balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
-		// 		if(i>2 && balls[i-2].mode == 'delete')
-		// 			balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
-
-		// 		balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
-
-		// 		balls[i].mode = 'delete'
-		// 	}
-		// 	// 
-		// if(balls[i].x < speedbreak[3].clientpos)
-		// 	if(((balls[i].id-3)/8)%2==0 && balls[i].mode != 'delete')
-		// 	{
-		// 		balls[i-1].dy += (balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient
-		// 		if(i> 2 && balls[i-2].mode == 'delete')
-		// 			balls[i-2].dy +=  ((balls[i].yClient + balls[i-1].yClient)/2 - balls[i-1].yClient)/2
-
-		// 		balls[i].dy += ((balls[i+1].yClient) + (balls[i-1].yClient+balls[i-1].dy))/2 - balls[i].yClient
-
-		// 		balls[i].mode = 'delete'
-		// 	}
-
 	}
-	// 	
 
 	inner += '<line x1="' + margins.left + '" y1="0" x2="' + margins.left + '" y2="' + 
 				svgy.clientHeight + '" style="stroke:#000f;stroke-width:1" />'
@@ -240,8 +239,6 @@ function loop( )
 
 	for (var i = 0; i < balls.length; i++) {
 
-		// balls[i].x -= (balls[i].x*balls[i].x*balls[i].x)/300000000  +0.03
-
 		for (var j = 0; j < speedbreak.length; j++) {			
 
 			let prevClientpos = 0 
@@ -263,50 +260,6 @@ function loop( )
 				balls[i].x	-= nowstep 
 			} 
 		}
-		// else if(balls[i].x >speedbreak[1]['clientpos'] )
-		// {
-		// 	let width = ( prevClientpos - speedbreak[1]['clientpos'])
-		// 	let time  = speedbreak[1]['duration'] - speedbreak[0]['duration']
-		// 	let nowstep = step * width / time / 1000
-		// 	// console.log(nowstep)
-		// 	balls[i].x	-= nowstep 
-		// }
-		// else if(balls[i].x >speedbreak[2]['clientpos'] )
-		// {
-			
-		// 	let width = ( prevClientpos - speedbreak[2]['clientpos'])
-		// 	let time  = speedbreak[2]['duration'] - speedbreak[1]['duration']
-		// 	let nowstep = step * width / time / 1000
-		// 	// console.log(nowstep)
-		// 	balls[i].x	-= nowstep 
-		// }
-		// else if(balls[i].x >speedbreak[3]['clientpos'] )
-		// {
-			
-		// 	let width = ( prevClientpos - speedbreak[3]['clientpos'])
-		// 	let time  = speedbreak[3]['duration'] - speedbreak[2]['duration']
-		// 	let nowstep = step * width / time / 1000
-		// 	// console.log(nowstep)
-		// 	balls[i].x	-= nowstep 
-		// }
-		// else if(balls[i].x >speedbreak[4]['clientpos'] )
-		// {
-			
-		// 	let width = ( prevClientpos - speedbreak[4]['clientpos'])
-		// 	let time  = speedbreak[4]['duration'] - speedbreak[3]['duration']
-		// 	let nowstep = step * width / time / 1000
-		// 	// console.log(nowstep)
-		// 	balls[i].x	-= nowstep 
-		// }
-		// else if(balls[i].x >speedbreak[5]['clientpos'] )
-		// {
-			
-		// 	let width = ( prevClientpos - speedbreak[5]['clientpos'])
-		// 	let time  = speedbreak[5]['duration'] - speedbreak[4]['duration']
-		// 	let nowstep = step * width / time / 1000
-		// 	// console.log(nowstep)
-		// 	balls[i].x	-= nowstep 
-		// }
 
 		balls[i].opacity = 255
 		if(balls[i].mode == 'delete')
@@ -322,6 +275,10 @@ function loop( )
 				let ballelementcircle = document.getElementById('ballcircle' + balls[i].id );
 				let ballelementtext = document.getElementById('balltext' + balls[i].id );
 				
+				// balls[i]['elements']['line'].parentNode().removeChild(balls[i]['elements']['line'])
+				// balls[i]['elements']['circle'].parentNode().removeChild(balls[i]['elements']['circle'])
+				// balls[i]['elements']['text'].parentNode().removeChild(balls[i]['elements']['text'])
+				// let ballelement = balls[i]['elements']['balltext']
 				ballelement.remove();
 				ballelementtext.remove()
 				ballelementcircle.remove()
