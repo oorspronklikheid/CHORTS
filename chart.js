@@ -78,7 +78,7 @@ function loop( chartInstance)
 		if(i>0)
 		{
 
-			chartInstance.svgy.insertAdjacentHTML('beforeend', '<line x1="' + (chartInstance.balls[i-1].x +5) + '" y1="' + (chartInstance.balls[i-1].yClient +5) + '" x2="' + (chartInstance.balls[i].x +5) + '" y2="' + (chartInstance.balls[i].yClient  +5)+ '" style="stroke:rgb(200,60,50);stroke-width:2" />')
+			chartInstance.svgy.insertAdjacentHTML('beforeend', '<line x1="' + (chartInstance.balls[i-1].x +5) + '" y1="' + (chartInstance.balls[i-1].yClient +5) + '" x2="' + (chartInstance.balls[i].x +5) + '" y2="' + (chartInstance.balls[i].yClient  +5)+ '" style="stroke:rgb(200,60,50);stroke-width:1" />')
 
 			chartInstance.balls[i-1]['elements']['line'] = chartInstance.svgy.lastChild
 		}
