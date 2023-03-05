@@ -9,10 +9,12 @@ ip = s.getsockname()[0]
 print(ip)
 s.close()
 
+
 async def echo(websocket):
 	async for message in websocket:
 		await websocket.send('%s' % psutil.cpu_percent(0.5))
 		# await websocket.send('50')
+
 
 async def main():
 	async with websockets.serve(echo, ip, 8765):

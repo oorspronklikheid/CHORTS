@@ -71,7 +71,7 @@ function loop( chartInstance)
 		let yVal = chartInstance.buffer[0].shift()
 		let yClient = (chartInstance.yrange.max - yVal)*yscale
 
-		chartInstance.balls.push( {x:(chartInstance.svgy.clientWidth-1)  , yClient:yClient , yVal:yVal  , yValues:[yVal], id:chartInstance.id , dy:0 , mode:'normal' , progress:0 ,opacity:255 , weight:1})
+		chartInstance.balls.push( {x:(chartInstance.svgy.clientWidth-1)  , yClient:yClient , yVal:yVal  , yValues:[yVal], id:chartInstance.id , dy:0 , mode:'normal' , progress:0 ,opacity:255 , weight:1 , age:0})
 
 		let i = chartInstance.balls.length - 1 
 
@@ -193,10 +193,12 @@ function loop( chartInstance)
 
 	for (var i = 0; i < chartInstance.balls.length; i++) {
 
+		chartInstance.balls[i].age += chartInstance.step // age in milliseconds
 		for (var j = 0; j < chartInstance.speedbreak.length; j++) {			
 
 			let prevClientpos = 0 
 			let prevTime = 0 
+			let currtime = 0
 			if(j ==0 ) 
 			{
 				prevClientpos = chartInstance.svgy.clientWidth
@@ -204,16 +206,34 @@ function loop( chartInstance)
 				prevClientpos = chartInstance.speedbreak[j-1]['clientpos']	
 				prevTime  = chartInstance.speedbreak[j-1]['duration']	
 			}
+				currtime = chartInstance.speedbreak[j]['duration']
 
 			if(chartInstance.balls[i].x >= chartInstance.speedbreak[j]['clientpos'] && chartInstance.balls[i].x < prevClientpos)
 			{
 				let width = ( prevClientpos - chartInstance.speedbreak[j]['clientpos'])
 				let time  = chartInstance.speedbreak[j]['duration'] - prevTime
 				let nowstep = chartInstance.step * width / time / 1000
-				// console.log(nowstep)
-				chartInstance.balls[i].x	-= nowstep 
 			} 
+
+			if(chartInstance.balls[i].age /1000 >  prevTime && chartInstance.balls[i].age  /1000 <  currtime ) // && chartInstance.balls[i].age > prevTime/1000 )
+			{
+				// if(i == 0 )
+				{
+					let ratio = (chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )
+					// console.log('hi' + ' , ' + prevTime+ ' , ' + (chartInstance.balls[i].age /1000) + ' , ' +(currtime)  + ' , ' + ratio)
+					// console.log( ratio * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  , chartInstance.balls[i].x  )
+					
+					chartInstance.balls[i].x = ( ratio ) * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  , chartInstance.balls[i].x 
+					// console.log(chartInstance.balls[i].x , chartInstance.speedbreak[i].clientpos - ((chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )) * (prevClientpos - chartInstance.speedbreak[i].clientpos ) )
+					// chartInstance.balls[i].x = prevClientpos - ((chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )) * (prevClientpos - chartInstance.speedbreak[i].clientpos )
+				}
+
+
+			}
+
+
 		}
+
 
 		chartInstance.balls[i].opacity = 255
 		if(chartInstance.balls[i].mode == 'delete')

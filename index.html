@@ -63,17 +63,17 @@ function addData1() {
 		// let yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
 		// if(select.value == 'noise')
 		yVal = Math.random()*50 +50 
-		// chartObj[0].buffer[0].push(yVal)
+		chartObj[0].buffer[0].push(yVal)
 		// yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
 		// chartObj[1].buffer[0].push(yVal)
 		time = performance.now()
 		console.log('request')
-		socket.send('request')
+		// socket.send('request')
 
 }
 
 function addData2() {
-		yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/512)*50 + 0
+		yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/256)*50 + 0
 		chartObj[1].buffer[0].push(yVal)
 
 }
@@ -81,22 +81,22 @@ function addData2() {
 setStep( 0 , 1000/30)
 setStep( 1 , 1000/30)
 setInterval(addData1 , 1000)
-// setInterval(addData2 , 2000)
-setInterval( function(){loop(chartObj[0])} ,chartObj[0].step);
-setInterval( function(){loop(chartObj[1])} ,chartObj[1].step);
+setInterval(addData2 , 2000)
+setInterval( function(){loop(chartObj[0])} ,chartObj[0].step*1);
+setInterval( function(){loop(chartObj[1])} ,chartObj[1].step*1);
 
 
 
-let host = 'ws://192.168.8.103:8765'
-let socket = new WebSocket(host);
-socket.onmessage = function(e) {
-	console.log(performance.now() - time )
-	console.log(e.data)
-	// console.log(typeof Number(e.data))
+// let host = 'ws://192.168.8.103:8765'
+// let socket = new WebSocket(host);
+// socket.onmessage = function(e) {
+// 	console.log(performance.now() - time )
+// 	console.log(e.data)
+// 	// console.log(typeof Number(e.data))
 
-	chartObj[0].buffer[0].push(Number(e.data))
-	chartObj[1].buffer[0].push(Number(e.data))
-}
+// 	chartObj[0].buffer[0].push(Number(e.data))
+// 	chartObj[1].buffer[0].push(Number(e.data))
+// }
 
 
 
