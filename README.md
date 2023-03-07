@@ -1,3 +1,3 @@
 # CHORTS
 
-live link : https://password.viper-7.com/007/
+live link : http://129.151.174.245/007/
