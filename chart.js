@@ -54,6 +54,13 @@ function setup( i , svgy ) {
 }
 
 
+function addDataPoint( chartInstance) 
+{
+
+
+
+}
+
 function loop( chartInstance) 
 {
 
@@ -68,10 +75,14 @@ function loop( chartInstance)
 	// add new ball
 	if( chartInstance.buffer[0].length > 0  )
 	{
-		let yVal = chartInstance.buffer[0].shift()
+		let newVal = chartInstance.buffer[0].shift()
+		let yVal = newVal.yVal
+		// console.log(yVal)
 		let yClient = (chartInstance.yrange.max - yVal)*yscale
 
-		chartInstance.balls.push( {x:(chartInstance.svgy.clientWidth-1)  , yClient:yClient , yVal:yVal  , yValues:[yVal], id:chartInstance.id , dy:0 , mode:'normal' , progress:0 ,opacity:255 , weight:1 , age:0})
+		let age = performance.now() - newVal.time 
+		// console.log(age )
+		chartInstance.balls.push( {x:(chartInstance.svgy.clientWidth-1)  , yClient:yClient , yVal:yVal  , yValues:[yVal], id:chartInstance.id , dy:0 , mode:'normal' , progress:0 ,opacity:255 , weight:1 , age:age , initage:performance.now()})
 
 		let i = chartInstance.balls.length - 1 
 
@@ -122,7 +133,9 @@ function loop( chartInstance)
 	
 	if(chartInstance.balls.length>0)
 	{
-		if(chartInstance.balls[0].x < chartInstance.margins.left )
+
+		//
+		if(chartInstance.balls[0].age/1000 > chartInstance.speedbreak[chartInstance.speedbreak.length-1].duration)
 		{
 			chartInstance.balls[0]['elements']['line'].remove()
 			chartInstance.balls[0]['elements']['circle'].remove()
@@ -193,7 +206,9 @@ function loop( chartInstance)
 
 	for (var i = 0; i < chartInstance.balls.length; i++) {
 
-		chartInstance.balls[i].age += chartInstance.step // age in milliseconds
+		
+		// chartInstance.balls[i].age += chartInstance.step // age in milliseconds
+		chartInstance.balls[i].age  = performance.now() - chartInstance.balls[i].initage;
 		for (var j = 0; j < chartInstance.speedbreak.length; j++) {			
 
 			let prevClientpos = 0 
@@ -220,12 +235,9 @@ function loop( chartInstance)
 				// if(i == 0 )
 				{
 					let ratio = (chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )
-					// console.log('hi' + ' , ' + prevTime+ ' , ' + (chartInstance.balls[i].age /1000) + ' , ' +(currtime)  + ' , ' + ratio)
-					// console.log( ratio * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  , chartInstance.balls[i].x  )
 					
-					chartInstance.balls[i].x = ( ratio ) * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  , chartInstance.balls[i].x 
-					// console.log(chartInstance.balls[i].x , chartInstance.speedbreak[i].clientpos - ((chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )) * (prevClientpos - chartInstance.speedbreak[i].clientpos ) )
-					// chartInstance.balls[i].x = prevClientpos - ((chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )) * (prevClientpos - chartInstance.speedbreak[i].clientpos )
+					chartInstance.balls[i].x = ( ratio ) * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  
+					
 				}
 
 
@@ -245,6 +257,8 @@ function loop( chartInstance)
 
 			}else
 			{
+				// console.log('chartInstance.balls[i]' )
+				 // console.log(chartInstance.balls[i]);
 				chartInstance.balls[i]['elements']['line'].remove()
 				chartInstance.balls[i]['elements']['circle'].remove()
 				chartInstance.balls[i]['elements']['text'].remove()

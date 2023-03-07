@@ -3,7 +3,7 @@
 <head>
 	<meta charset="utf-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-	<title> CHORTS</title>
+	<title> CHORTS - CHarts with Optimized Non-LineaR Time Scaling</title>
 </head>
 <style type="text/css">
 	
@@ -41,8 +41,8 @@ addSpeedbreak(0 , {duration:15 	, pos:70 })
 addSpeedbreak(0 , {duration:35 	, pos:55 })
 addSpeedbreak(0 , {duration:75 	, pos:40 })
 addSpeedbreak(0 , {duration:155 	, pos:25 })
-addSpeedbreak(0 , {duration:600 	, pos:10 })
-addSpeedbreak(0 , {duration:1200 	, pos:0 })
+addSpeedbreak(0 , {duration:300 	, pos:10 })
+addSpeedbreak(0 , {duration:600 	, pos:0 })
 
 setup(1 , svgy2 )
 setMargins(1 , 25,15,15,0)
@@ -57,24 +57,35 @@ addSpeedbreak(1 , {duration:1200 	, pos:10 })
 addSpeedbreak(1 , {duration:3600 	, pos:0 })
 
 let time ; 
-
+let age = performance.now() ;  
 function addData1() {
 		// console.log('pushing?')
 		// let yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
 		// if(select.value == 'noise')
 		yVal = Math.random()*50 +50 
-		chartObj[0].buffer[0].push(yVal)
+		chartObj[0].buffer[0].push({yVal:yVal , time:age})
+		age += 1000 
+		// console.log('wtf' +(performance.now() - age))
+		// if(performance.now() - age > 1000)
+		// {
+		// 	console.log('addeddeeedddeed')
+		// 	age += 1000 
+		// 	yVal = Math.random()*50 +50 
+		// 	chartObj[0].buffer[0].push({yVal:yVal , time:age})
+
+		// }
 		// yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
 		// chartObj[1].buffer[0].push(yVal)
-		time = performance.now()
-		console.log('request')
+		// time = performance.now()
+		// console.log('request' + time)
 		// socket.send('request')
 
 }
 
 function addData2() {
-		yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/256)*50 + 0
-		chartObj[1].buffer[0].push(yVal)
+		yVal = Math.random()*5 +50 +Math.sin(performance.now()/16384)*50 + 0
+		chartObj[1].buffer[0].push({yVal:yVal , time:performance.now()})
+		console.log('pew')
 
 }
 
