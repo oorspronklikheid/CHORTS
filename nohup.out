@@ -1,0 +1,9 @@
+./serv.py: 1: ./serv.py: import: not found
+./serv.py: 2: ./serv.py: import: not found
+./serv.py: 3: ./serv.py: import: not found
+./serv.py: 4: ./serv.py: : not found
+./serv.py: 5: ./serv.py: Syntax error: "(" unexpected
+./serv.py: 1: ./serv.py: import: not found
+./serv.py: 2: ./serv.py: import: not found
+./serv.py: 3: ./serv.py: import: not found
+./serv.py: 5: ./serv.py: Syntax error: "(" unexpected

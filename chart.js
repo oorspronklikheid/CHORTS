@@ -26,6 +26,8 @@ function setStep( i , newStep)
 
 function addSpeedbreak( i , newspeedbreak)
 {
+	if(newspeedbreak.label == undefined)
+		newspeedbreak.label = newspeedbreak.duration
 	chartObj[i].speedbreak.push(newspeedbreak)
 }
 
@@ -72,43 +74,45 @@ function loop( chartInstance)
 	}
 
 	chartInstance.t ++
-	// add new ball
 	if( chartInstance.buffer[0].length > 0  )
 	{
 		let newVal = chartInstance.buffer[0].shift()
 		let yVal = newVal.yVal
-		// console.log(yVal)
 		let yClient = (chartInstance.yrange.max - yVal)*yscale
 
+		
 		let age = performance.now() - newVal.time 
-		// console.log(age )
-		chartInstance.balls.push( {x:(chartInstance.svgy.clientWidth-1)  , yClient:yClient , yVal:yVal  , yValues:[yVal], id:chartInstance.id , dy:0 , mode:'normal' , progress:0 ,opacity:255 , weight:1 , age:age , initage:performance.now()})
 
+		chartInstance.balls.push( {x:(chartInstance.svgy.clientWidth-1)  , yClient:yClient , yVal:yVal  , 
+																yValues:[yVal], id:chartInstance.id , dy:0 , mode:'normal' , progress:0 ,
+																opacity:255 , weight:1 , age:age , initage:performance.now()})
+		
 		let i = chartInstance.balls.length - 1 
+
+		let curball = chartInstance.balls[i]
+		let prevball = -1
 
 		if(i>0)
 		{
-
-			chartInstance.svgy.insertAdjacentHTML('beforeend', '<line x1="' + (chartInstance.balls[i-1].x +5) + '" y1="' + (chartInstance.balls[i-1].yClient +5) + '" x2="' + (chartInstance.balls[i].x +5) + '" y2="' + (chartInstance.balls[i].yClient  +5)+ '" style="stroke:rgb(200,60,50);stroke-width:1" />')
-
-			chartInstance.balls[i-1]['elements']['line'] = chartInstance.svgy.lastChild
+			prevball = chartInstance.balls[i-1]
+			chartInstance.svgy.insertAdjacentHTML('beforeend', `<line x1="${prevball.x +5}" y1="${(prevball.yClient +5)}" x2="${(curball.x +5)}" y2="${(curball.yClient  +5)}" style="stroke:rgb(200,60,50);stroke-width:1" />`)
+			prevball['elements']['line'] = chartInstance.svgy.lastChild
 		}
 
-		chartInstance.balls[i]['elements'] = {}
+
+		curball['elements'] = {}
+		chartInstance.svgy.insertAdjacentHTML('beforeend', `<text x="${curball.x}" y="${curball.yClient}"  fill="#000000' + ${dectohex(curball.opacity)} " >${Math.round(curball.yVal*10)/10.0} </text>`)
+
+		curball['elements']['text'] = chartInstance.svgy.lastChild
 		
-		chartInstance.svgy.insertAdjacentHTML('beforeend', '<text x="' + chartInstance.balls[i].x + '" y="' + chartInstance.balls[i].yClient + '"' + ' fill="#000000' + dectohex(chartInstance.balls[i].opacity) + '" >' + Math.round(chartInstance.balls[i].yVal*10)/10.0 + '</text>')
-		chartInstance.balls[i]['elements']['text'] = chartInstance.svgy.lastChild
-		
-		chartInstance.svgy.insertAdjacentHTML('beforeend', '<circle cx="' + chartInstance.balls[i].x + '" cy="' + chartInstance.balls[i].yClient + '" r="' + 5 + '" stroke="#eeeeeeff" stroke-width="2" fill="#440088' + dectohex(chartInstance.balls[i].opacity) + '" />')
-		chartInstance.balls[i]['elements']['circle'] = chartInstance.svgy.lastChild
-		
+		chartInstance.svgy.insertAdjacentHTML('beforeend', `<circle cx="${curball.x}" cy="${curball.yClient}" r="5" stroke="#eeeeeeff" stroke-width="2" fill="#440088${dectohex(curball.opacity)}" />`)
+		curball['elements']['circle'] = chartInstance.svgy.lastChild
 
 		chartInstance.id ++ ;
 	}
 
 	for (var i = 0; i <= 6; i++) 
 	{
-   
 		if(chartInstance.lineelements[i] == null)
 		{
 			chartInstance.svgy.insertAdjacentHTML('beforeend' , '<line x1="' + chartInstance.margins.left + '" y1="' + ( (chartInstance.svgy.clientHeight - chartInstance.margins.bottom)*(6-i)/6 )  + '" x2="' + chartInstance.svgy.clientWidth + '" y2="' + ( (chartInstance.svgy.clientHeight - chartInstance.margins.bottom)*(6-i)/6 )  + '" style="stroke:#aaa8;stroke-width:1" />')
@@ -133,42 +137,47 @@ function loop( chartInstance)
 	
 	if(chartInstance.balls.length>0)
 	{
+		let firstball = chartInstance.balls[0]
 
-		//
-		if(chartInstance.balls[0].age/1000 > chartInstance.speedbreak[chartInstance.speedbreak.length-1].duration)
+		if(firstball.age/1000 > chartInstance.speedbreak[chartInstance.speedbreak.length-1].duration)
 		{
-			chartInstance.balls[0]['elements']['line'].remove()
-			chartInstance.balls[0]['elements']['circle'].remove()
-			chartInstance.balls[0]['elements']['text'].remove()
+			firstball['elements']['line'].remove()
+			firstball['elements']['circle'].remove()
+			firstball['elements']['text'].remove()
 			chartInstance.balls.shift()
 		}
 	}
+
 	for (var i = 0; i < chartInstance.balls.length; i++) {
 
 		let breaknum = 2
 		for (var j = 0; j < chartInstance.speedbreak.length; j++) 
 		{
 			let offset = breaknum -1
+			let curball = chartInstance.balls[i]
+			let prevball = chartInstance.balls[i-1]
+			let prevprevball = chartInstance.balls[i-2]
+			let nextball = chartInstance.balls[i+1]
 
-		if(chartInstance.balls[i].x < chartInstance.speedbreak[j].clientpos)
+		if(curball.x < chartInstance.speedbreak[j].clientpos)
 		{
-			if(  ( (chartInstance.balls[i].id  )/(breaknum /2))%2==1 && chartInstance.balls[i].mode != 'delete')
+			if(  ( (curball.id  )/(breaknum /2))%2==1 && curball.mode != 'delete')
 			{
-				chartInstance.balls[i-1].dy += (chartInstance.balls[i].yClient + chartInstance.balls[i-1].yClient)/2 - chartInstance.balls[i-1].yClient
-				chartInstance.balls[i-1].weight += chartInstance.balls[i].weight
-				chartInstance.balls[i-1].yValues = chartInstance.balls[i-1].yValues.concat(chartInstance.balls[i].yValues)
+				prevball.dy += (curball.yVal + prevball.yVal)/2 - prevball.yVal
+				prevball.weight += curball.weight
+				prevball.yValues = prevball.yValues.concat(curball.yValues)
 
-				if(i>2  && chartInstance.balls[i-2].mode == 'delete')
-					chartInstance.balls[i-2].dy +=  ((chartInstance.balls[i].yClient + chartInstance.balls[i-1].yClient)/2 - chartInstance.balls[i-1].yClient)/2
+				if(i>2  && prevprevball.mode == 'delete')
+					prevprevball.dy +=  ((curball.yVal + prevball.yVal)/2 - prevball.yVal)/2
 
-				chartInstance.balls[i].dy += ((chartInstance.balls[i+1].yClient) + (chartInstance.balls[i-1].yClient+chartInstance.balls[i-1].dy))/2 - chartInstance.balls[i].yClient
-				chartInstance.balls[i].mode = 'delete'
+				curball.dy += ((nextball.yVal) + (prevball.yVal + prevball.dy))/2 - curball.yVal
+				curball.mode = 'delete'
 
 			}
 		}
 			breaknum *= 2
 
-		}
+		}///////////////////////////////////
 	}
 
 	for (var i = 0; i < chartInstance.speedbreak.length; i++) {
@@ -191,24 +200,25 @@ function loop( chartInstance)
 
 		if(textelement == null)
 		{
-			chartInstance.svgy.insertAdjacentHTML('beforeend' , '<text x="' + (chartInstance.speedbreak[i].clientpos + 10) + '" y="' + (chartInstance.svgy.clientHeight -15) + '"' + ' fill="#000000ff" >' + chartInstance.speedbreak[i].duration +'</text>')
+
+			chartInstance.svgy.insertAdjacentHTML('beforeend' , '<text x="' + (chartInstance.speedbreak[i].clientpos + 6) + '" y="' + (chartInstance.svgy.clientHeight ) + '"' + ' fill="#000000ff" >' + chartInstance.speedbreak[i].label +'</text>')
 			chartInstance.xtexts[i] = chartInstance.svgy.lastChild
 		}else
 		{
-			textelement.setAttribute('x', (chartInstance.speedbreak[i].clientpos + 10)) ;
-			textelement.setAttribute('y', (chartInstance.svgy.clientHeight  -15 )) ;
-
+			textelement.setAttribute('x', (chartInstance.speedbreak[i].clientpos + 6 )) ;
+			textelement.setAttribute('y', (chartInstance.svgy.clientHeight    )) ;
 		}
 
-
 	}
-
 
 	for (var i = 0; i < chartInstance.balls.length; i++) {
 
 		
-		// chartInstance.balls[i].age += chartInstance.step // age in milliseconds
-		chartInstance.balls[i].age  = performance.now() - chartInstance.balls[i].initage;
+		let curball = chartInstance.balls[i]
+		// let prevball = -1
+			
+		// curball.age += chartInstance.step // age in milliseconds
+		curball.age  = performance.now() - curball.initage;
 		for (var j = 0; j < chartInstance.speedbreak.length; j++) {			
 
 			let prevClientpos = 0 
@@ -223,121 +233,95 @@ function loop( chartInstance)
 			}
 				currtime = chartInstance.speedbreak[j]['duration']
 
-			if(chartInstance.balls[i].x >= chartInstance.speedbreak[j]['clientpos'] && chartInstance.balls[i].x < prevClientpos)
+			if(curball.x >= chartInstance.speedbreak[j]['clientpos'] && curball.x < prevClientpos)
 			{
 				let width = ( prevClientpos - chartInstance.speedbreak[j]['clientpos'])
 				let time  = chartInstance.speedbreak[j]['duration'] - prevTime
 				let nowstep = chartInstance.step * width / time / 1000
 			} 
 
-			if(chartInstance.balls[i].age /1000 >  prevTime && chartInstance.balls[i].age  /1000 <  currtime ) // && chartInstance.balls[i].age > prevTime/1000 )
+			if(curball.age /1000 >  prevTime && curball.age  /1000 <  currtime ) // && curball.age > prevTime/1000 )
 			{
 				// if(i == 0 )
 				{
-					let ratio = (chartInstance.balls[i].age/1000 - prevTime) / ( currtime - prevTime  )
+					let ratio = (curball.age/1000 - prevTime) / ( currtime - prevTime  )
 					
-					chartInstance.balls[i].x = ( ratio ) * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  
+					curball.x = ( ratio ) * chartInstance.speedbreak[j].clientpos + (1 - ratio)* prevClientpos  
 					
 				}
-
-
 			}
-
-
 		}
 
-
-		chartInstance.balls[i].opacity = 255
-		if(chartInstance.balls[i].mode == 'delete')
+		curball.opacity = 255
+		if(curball.mode == 'delete')
 		{
-			if(chartInstance.balls[i].progress < 100 )
+			if(curball.progress < 100 )
 			{
-				chartInstance.balls[i].progress += 4; 
-				chartInstance.balls[i].opacity = 255 *(100 - chartInstance.balls[i].progress)/100
+				curball.progress += 4; 
+				curball.opacity  = 255 *(100 - curball.progress)/100
 
 			}else
 			{
-				// console.log('chartInstance.balls[i]' )
-				 // console.log(chartInstance.balls[i]);
-				chartInstance.balls[i]['elements']['line'].remove()
-				chartInstance.balls[i]['elements']['circle'].remove()
-				chartInstance.balls[i]['elements']['text'].remove()
+				curball['elements']['line'].remove()
+				curball['elements']['circle'].remove()
+				curball['elements']['text'].remove()
 
 				chartInstance.balls.splice(i, 1)
 
 			}
 		}
 
-		let progstep = 1
-		if(chartInstance.balls[i].dy > 25 || chartInstance.balls[i].dy < -25 )
+		let progstep = 0.5
+		if(curball.dy > 5 || curball.dy < -5 )
+			progstep = 1 
+		if(curball.dy > 50 || curball.dy < -50 )
 			progstep = 3 
-		if(chartInstance.balls[i].dy > 50 || chartInstance.balls[i].dy < -50 )
+		if(curball.dy > 75 || curball.dy < -75 )
 			progstep = 5 
-		if(chartInstance.balls[i].dy > 75 || chartInstance.balls[i].dy < -75 )
-			progstep = 7 
-		if(chartInstance.balls[i].dy > progstep)
-		{
-			chartInstance.balls[i].yClient += progstep	
-			chartInstance.balls[i].dy-= progstep
-		}
-		if(chartInstance.balls[i].dy < -progstep)
-		{
-			chartInstance.balls[i].yClient -= progstep		
-			chartInstance.balls[i].dy+= progstep
-		}
-		if(chartInstance.balls[i].dy != 0 && chartInstance.balls[i].dy  <progstep && chartInstance.balls[i].dy > -progstep )
-		{
-			chartInstance.balls[i].yClient += chartInstance.balls[i].dy		
-			chartInstance.balls[i].dy= 0
-		}
-		chartInstance.balls[i].yVal = chartInstance.yrange.max - chartInstance.balls[i].yClient/yscale 
 
+		if(curball.dy > progstep)
+		{
+			curball.yVal += progstep	
+			curball.dy   -= progstep
+		}
+		if(curball.dy < -progstep)
+		{
+			curball.yVal -= progstep		
+			curball.dy   += progstep
+		}
+		if(curball.dy != 0 && curball.dy  <progstep && curball.dy > -progstep )
+		{
+			curball.yVal += curball.dy		
+			curball.dy   = 0
+		}
+		curball.yClient = chartInstance.yrange.max*yscale - 1*curball.yVal*yscale
 	}
-
-
 		
-
-	for (var i = 0; i < chartInstance.balls.length; i++) {
-
-			// console.log(type(chartInstance.balls[i]['elements']['line'])
-			if(chartInstance.balls[i]['elements']['line'] != undefined)
+	for (var i = 0; i < chartInstance.balls.length; i++) {			
+		let curball = chartInstance.balls[i]
+		let nextball = chartInstance.balls[i+1]
+			if(curball['elements']['line'] != undefined)
 			{
-
-			chartInstance.balls[i]['elements']['line'].setAttribute('x1', (chartInstance.balls[i].x ) ) ;
-			chartInstance.balls[i]['elements']['line'].setAttribute('y1', (chartInstance.balls[i].yClient ) ) ;
-			chartInstance.balls[i]['elements']['line'].setAttribute('x2', (chartInstance.balls[i+1].x ) ) ;
-			chartInstance.balls[i]['elements']['line'].setAttribute('y2', (chartInstance.balls[i+1].yClient  ) ) ;
+				curball['elements']['line'].setAttribute('x1', (curball.x ) ) ;
+				curball['elements']['line'].setAttribute('y1', (curball.yClient ) ) ;
+				curball['elements']['line'].setAttribute('x2', (nextball.x ) ) ;
+				curball['elements']['line'].setAttribute('y2', (nextball.yClient  ) ) ;
 			}
-
-
 	}
 	for (var i = 0; i < chartInstance.balls.length; i++) {
 
-				chartInstance.balls[i]['elements']['text'].setAttribute('x', chartInstance.balls[i].x ) ;
-				chartInstance.balls[i]['elements']['text'].setAttribute('y', chartInstance.balls[i].yClient ) ;
-				chartInstance.balls[i]['elements']['text'].setAttribute('fill', '#000000FF' + dectohex(chartInstance.balls[i].opacity) ) ;
+				let curball = chartInstance.balls[i]
+				curball['elements']['text'].setAttribute('x', curball.x ) ;
+				curball['elements']['text'].setAttribute('y', curball.yClient ) ;
+				curball['elements']['text'].setAttribute('fill', '#000000FF' + dectohex(curball.opacity) ) ;
 				if( i > 0 && i < chartInstance.balls.length -1 )
 				{
-
-					if((chartInstance.balls[i].yVal > chartInstance.balls[i-1].yVal &&
-					 chartInstance.balls[i].yVal > chartInstance.balls[i+1].yVal) || 
-						(chartInstance.balls[i].yVal < chartInstance.balls[i-1].yVal &&
-					 chartInstance.balls[i].yVal < chartInstance.balls[i+1].yVal)
-					)
-					{
-						chartInstance.balls[i]['elements']['text'].innerHTML = Math.round(chartInstance.balls[i].yVal*10)/10.0 
-					}else
-					{
-						chartInstance.balls[i]['elements']['text'].innerHTML = chartInstance.balls[i].weight
-					}
+					curball['elements']['text'].innerHTML = Math.round(curball.yVal*10)/10.0 
 				}
-				// chartInstance.balls[i]['elements']['text'].innerHTML = "(" +  chartInstance.balls[i].weight + ")"
-				 // chartInstance.balls[i]['elements']['text'].innerHTML = JSON.stringify(chartInstance.balls[i].yValues)
-				 // chartInstance.balls[i]['elements']['text'].innerHTML = JSON.stringify(chartInstance.balls[i].yValues.map(function(each_element){ return Number(each_element.toFixed(2));}));
 
-				chartInstance.balls[i]['elements']['circle'].setAttribute('cx', chartInstance.balls[i].x ) ;
-				chartInstance.balls[i]['elements']['circle'].setAttribute('cy', chartInstance.balls[i].yClient) ;
-				chartInstance.balls[i]['elements']['circle'].setAttribute('fill', '#440088' + dectohex(chartInstance.balls[i].opacity)  ) ;
+				curball['elements']['circle'].setAttribute('cx', curball.x ) ;
+				curball['elements']['circle'].setAttribute('cy', curball.yClient) ;
+				curball['elements']['circle'].setAttribute('fill', '#440088' + dectohex(curball.opacity)  ) ;
 	}
 
 }

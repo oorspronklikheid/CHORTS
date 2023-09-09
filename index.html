@@ -36,13 +36,13 @@ let svgy2 = document.getElementById('svgy2')
 setup( 0 , svgy1 )
 setMargins(0 , 25,15,15,0)
 drawAxis(0)
-addSpeedbreak(0 , {duration:5 ,	 pos:85 })
-addSpeedbreak(0 , {duration:15 	, pos:70 })
-addSpeedbreak(0 , {duration:35 	, pos:55 })
-addSpeedbreak(0 , {duration:75 	, pos:40 })
-addSpeedbreak(0 , {duration:155 	, pos:25 })
-addSpeedbreak(0 , {duration:300 	, pos:10 })
-addSpeedbreak(0 , {duration:600 	, pos:0 })
+addSpeedbreak(0 , {duration:5 	,	 pos:85 , label : '5 sec'  } )
+addSpeedbreak(0 , {duration:15 	, pos:70 	, label : '15 sec' } )
+addSpeedbreak(0 , {duration:30 	, pos:55 	, label : '30 sec' } )
+addSpeedbreak(0 , {duration:60 	, pos:40 	, label : '1 min'  } )
+addSpeedbreak(0 , {duration:120 , pos:25 	, label : '2 min' } )
+addSpeedbreak(0 , {duration:300 , pos:10 	, label : '5 min'  } )
+addSpeedbreak(0 , {duration:600 , pos:0 	, label : '10 min' } )
 
 setup(1 , svgy2 )
 setMargins(1 , 25,15,15,0)
@@ -63,8 +63,9 @@ function addData1() {
 		// let yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
 		// if(select.value == 'noise')
 		yVal = Math.random()*50 +50 
+		// yVal = 100 
 		chartObj[0].buffer[0].push({yVal:yVal , time:age})
-		age += 1000 
+		age += 2000 
 		// console.log('wtf' +(performance.now() - age))
 		// if(performance.now() - age > 1000)
 		// {
@@ -85,13 +86,13 @@ function addData1() {
 function addData2() {
 		yVal = Math.random()*5 +50 +Math.sin(performance.now()/16384)*50 + 0
 		chartObj[1].buffer[0].push({yVal:yVal , time:performance.now()})
-		console.log('pew')
+		// console.log('pew')
 
 }
 
 setStep( 0 , 1000/30)
 setStep( 1 , 1000/30)
-setInterval(addData1 , 1000)
+setInterval(addData1 , 2000)
 setInterval(addData2 , 2000)
 setInterval( function(){loop(chartObj[0])} ,chartObj[0].step*1);
 setInterval( function(){loop(chartObj[1])} ,chartObj[1].step*1);
