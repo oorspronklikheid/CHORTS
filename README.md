@@ -1,3 +1,3 @@
 # CHORTS
 
-live link : http://129.151.174.245/007/
+live link : [https://password2.co.za/007/](https://password2.co.za/007/)https://password2.co.za/007/
