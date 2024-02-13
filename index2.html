@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title> CHORTS - CHarts with Optimized Non-LineaR Time Scaling</title>
+</head>
+<style type="text/css">
+	
+<style type="text/css">
+	* { margin: 0; padding: 0;}
+
+	body, html { height:99%;  width:99%; }
+
+
+</style>
+<body   >
+<svg id='svgy' width='100%' height='50%'>
+  <g id='ngroupy'> </g>
+</svg>
+<table id='mytable'>
+	
+
+</table>
+<!-- <select id='select'>
+  <option value="sin">sin</option>
+  <option value="noise">noise</option>
+</select> -->
+</body>
+<script type="text/javascript" src="./chart.js"></script>
+<script type="text/javascript">
+	
+let select = document.getElementById('select')
+let svgy1 = document.getElementById('svgy')
+// let svgy2 = document.getElementById('svgy2')
+
+setup( 0 , svgy1 , 3)
+assignClickBack(0 , drawtable) 
+setupSeries(0 , 0 , {linecolour: '#123456' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"avg" , showval:'no' , name:'average'})
+setupSeries(0 , 1 , {linecolour: '#123456' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"min" , showval:'no' , name:'min'} )
+setupSeries(0 , 2 , {linecolour: '#aa2288' , ballcolour:'#ff2288' , 
+										 textcolour:'#000000' , mode:"max" , showval:'no' , name:'max'} )
+
+setMargins(0 , 25,15,15,0)
+drawAxis(0)
+// addSpeedbreak(0 , {duration:0.5 			,	pos:95  , label : '0.5 sec'} )
+addSpeedbreak(0 , {duration:1 				,	pos:90  , label : '1 sec'  } )
+addSpeedbreak(0 , {duration:2 				,	pos:85  , label : '2 sec'  } )
+addSpeedbreak(0 , {duration:5 				,	pos:80  , label : '5 sec'  } )
+addSpeedbreak(0 , {duration:10 				,	pos:75  , label : '10 sec' } )
+addSpeedbreak(0 , {duration:20 				,	pos:70  , label : '20 sec' } )
+addSpeedbreak(0 , {duration:40 				, pos:65 	, label : '40 sec' } )
+addSpeedbreak(0 , {duration:60 				, pos:60 	, label : '1 min'  } )
+addSpeedbreak(0 , {duration:120 			, pos:55 	, label : '2 min'  } )
+addSpeedbreak(0 , {duration:300 			, pos:50 	, label : '5 min'  } )
+addSpeedbreak(0 , {duration:600 			, pos:45 	, label : '10 min' } )
+addSpeedbreak(0 , {duration:1200			, pos:40 	, label : '20 min' } )
+addSpeedbreak(0 , {duration:3600 			, pos:35 	, label : '1 hr'   } )
+addSpeedbreak(0 , {duration:3600*2 		, pos:30 	, label : '2 hr'   } )
+addSpeedbreak(0 , {duration:3600*5 		, pos:25 	, label : '5 hr'   } )
+addSpeedbreak(0 , {duration:3600*10 	, pos:20 	, label : '10 hr'  } )
+addSpeedbreak(0 , {duration:3600*24 	, pos:15 	, label : '1 day'  } )
+addSpeedbreak(0 , {duration:3600*24*2 , pos:10 	, label : '2 day'  } )
+addSpeedbreak(0 , {duration:3600*24*4 , pos:5	  , label : '4 day'  } )
+addSpeedbreak(0 , {duration:3600*24*8 , pos:0 	, label : '8 day'  } )
+
+
+let time ; 
+let age = performance.now() ;  
+let lastval = 100 
+function addData1() {
+		yVal = Math.random()*50 +50 
+		 // yVal = lastval
+		 // lastval -= 2
+		chartObj[0].buffer[0][0].push({yVal:yVal  , time:age})
+		chartObj[0].buffer[1][0].push({yVal:yVal  , time:age})
+		chartObj[0].buffer[2][0].push({yVal:yVal  , time:age})
+		age += 2000 
+
+}
+
+function drawtable(yvalues)
+{
+	console.log('hallow')
+	mytable = document.getElementById('mytable')
+	mytable.innerHTML = '' 
+	let thead = mytable.createTHead();
+
+
+	  for (let yvalue of yvalues) {
+	let row = thead.insertRow(); 
+    let tr = document.createElement("tr");
+    let text = document.createTextNode(yvalue);
+    tr.appendChild(text);
+    row.appendChild(tr);
+  }
+}
+
+setStep( 0 , 1000/30)
+setInterval(addData1 , 200)
+setInterval( function(){loop(chartObj[0])} ,chartObj[0].step*1);
+
+
+
+
+
+
+
+</script>
+</html>

@@ -33,68 +33,82 @@ let select = document.getElementById('select')
 let svgy1 = document.getElementById('svgy')
 let svgy2 = document.getElementById('svgy2')
 
-setup( 0 , svgy1 )
+setup( 0 , svgy1 , 3)
+setupSeries(0 , 0 , {linecolour: '#123456' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"avg" , showval:'no' , name:'average'})
+setupSeries(0 , 1 , {linecolour: '#123456' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"min" , showval:'no' , name:'min'} )
+setupSeries(0 , 2 , {linecolour: '#aa2288' , ballcolour:'#ff2288' , 
+										 textcolour:'#000000' , mode:"max" , showval:'no' , name:'max'} )
+
 setMargins(0 , 25,15,15,0)
 drawAxis(0)
 addSpeedbreak(0 , {duration:5 	,	 pos:85 , label : '5 sec'  } )
 addSpeedbreak(0 , {duration:15 	, pos:70 	, label : '15 sec' } )
 addSpeedbreak(0 , {duration:30 	, pos:55 	, label : '30 sec' } )
 addSpeedbreak(0 , {duration:60 	, pos:40 	, label : '1 min'  } )
-addSpeedbreak(0 , {duration:120 , pos:25 	, label : '2 min' } )
+addSpeedbreak(0 , {duration:120 , pos:25 	, label : '2 min'  } )
 addSpeedbreak(0 , {duration:300 , pos:10 	, label : '5 min'  } )
 addSpeedbreak(0 , {duration:600 , pos:0 	, label : '10 min' } )
 
-setup(1 , svgy2 )
+// addSpeedbreak(0 , {duration:0.5 	,	 pos:85 , label : '5 sec'  } )
+// addSpeedbreak(0 , {duration:1.5 	, pos:70 	, label : '15 sec' } )
+// addSpeedbreak(0 , {duration:3 	, pos:55 	, label : '30 sec' } )
+// addSpeedbreak(0 , {duration:6 	, pos:40 	, label : '1 min'  } )
+// addSpeedbreak(0 , {duration:12 , pos:25 	, label : '2 min' } )
+// addSpeedbreak(0 , {duration:30 , pos:10 	, label : '5 min'  } )
+// addSpeedbreak(0 , {duration:60 , pos:0 	, label : '10 min' } )
+
+setup(1 , svgy2 , 3 )
+setupSeries(1 , 0 , {linecolour: '#123456' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"avg" , showval:'no'  })
+setupSeries(1 , 1 , {linecolour: '#123456' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"min" , showval:'no'  } )
+setupSeries(1 , 2 , {linecolour: '#aa2288' , ballcolour:'#456789' , 
+										 textcolour:'#000000' , mode:"max" , showval:'no'  } )
 setMargins(1 , 25,15,15,0)
 drawAxis(1)
 // addSpeedbreak(1 , {duration:20    , pos:93 })
-addSpeedbreak(1 , {duration:30    , pos:85 })
-addSpeedbreak(1 , {duration:80 	  , pos:70 })
-addSpeedbreak(1 , {duration:160 	, pos:55 })
-addSpeedbreak(1 , {duration:300 	, pos:40 })
-addSpeedbreak(1 , {duration:600 	, pos:25 })
-addSpeedbreak(1 , {duration:1200 	, pos:10 })
-addSpeedbreak(1 , {duration:3600 	, pos:0 })
+addSpeedbreak(1 , {duration:10    , pos:90  , label : '10 sec'})
+addSpeedbreak(1 , {duration:30    , pos:80  , label : '30 sec'})
+addSpeedbreak(1 , {duration:60 	  , pos:70  , label : '1 min'})
+addSpeedbreak(1 , {duration:120 	, pos:60  , label : '2 min'})
+addSpeedbreak(1 , {duration:300 	, pos:50  , label : '5 min'})
+addSpeedbreak(1 , {duration:600 	, pos:40  , label : '10 min'})
+addSpeedbreak(1 , {duration:1200 	, pos:30  , label : '20 min'})
+addSpeedbreak(1 , {duration:2400 	, pos:20  , label : '40 min'})
+addSpeedbreak(1 , {duration:3600 	, pos:10  , label : '1 hour'})
+addSpeedbreak(1 , {duration:7200 	, pos:0  , label : '2 hour'})
 
 let time ; 
 let age = performance.now() ;  
+let lastval = 100 
 function addData1() {
-		// console.log('pushing?')
-		// let yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
-		// if(select.value == 'noise')
 		yVal = Math.random()*50 +50 
-		// yVal = 100 
-		chartObj[0].buffer[0].push({yVal:yVal , time:age})
+		 // yVal = lastval
+		 // lastval -= 2
+		chartObj[0].buffer[0][0].push({yVal:yVal  , time:age})
+		chartObj[0].buffer[1][0].push({yVal:yVal  , time:age})
+		chartObj[0].buffer[2][0].push({yVal:yVal  , time:age})
 		age += 2000 
-		// console.log('wtf' +(performance.now() - age))
-		// if(performance.now() - age > 1000)
-		// {
-		// 	console.log('addeddeeedddeed')
-		// 	age += 1000 
-		// 	yVal = Math.random()*50 +50 
-		// 	chartObj[0].buffer[0].push({yVal:yVal , time:age})
-
-		// }
-		// yVal = Math.random()*5 +50 +Math.sin(chartObj[0].t/400)*50 + 0
-		// chartObj[1].buffer[0].push(yVal)
-		// time = performance.now()
-		// console.log('request' + time)
-		// socket.send('request')
 
 }
 
 function addData2() {
-		yVal = Math.random()*5 +50 +Math.sin(performance.now()/16384)*50 + 0
-		chartObj[1].buffer[0].push({yVal:yVal , time:performance.now()})
+		yVal = Math.random()*5 +30 +Math.sin(performance.now()/8384)*30 + 0
+		chartObj[1].buffer[0][0].push({yVal:yVal , time:performance.now()})
+		// yVal += 20
+		chartObj[1].buffer[1][0].push({yVal:yVal , time:performance.now()})
+		chartObj[1].buffer[2][0].push({yVal:yVal , time:performance.now()})
 		// console.log('pew')
 
 }
 
 setStep( 0 , 1000/30)
-setStep( 1 , 1000/30)
 setInterval(addData1 , 2000)
-setInterval(addData2 , 2000)
 setInterval( function(){loop(chartObj[0])} ,chartObj[0].step*1);
+setStep( 1 , 1000/30)
+setInterval(addData2 , 2500)
 setInterval( function(){loop(chartObj[1])} ,chartObj[1].step*1);
 
 
@@ -106,8 +120,8 @@ setInterval( function(){loop(chartObj[1])} ,chartObj[1].step*1);
 // 	console.log(e.data)
 // 	// console.log(typeof Number(e.data))
 
-// 	chartObj[0].buffer[0].push(Number(e.data))
-// 	chartObj[1].buffer[0].push(Number(e.data))
+// 	chartObj[0].buffer[0][0].push(Number(e.data))
+// 	chartObj[1].buffer[0][0].push(Number(e.data))
 // }
 
 
